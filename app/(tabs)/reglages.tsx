@@ -4,11 +4,33 @@ import { Button, Card, Chip, SectionHeader, Toggle } from '@/components';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useDevice } from '@/contexts/DeviceContext';
 import { useModes } from '@/contexts/ModesContext';
-import { PLATFORM_LABELS } from '@/services/platform';
+import { useUpdates } from '@/hooks/useUpdates';
+import { desktop, PLATFORM_LABELS } from '@/services/platform';
 
 export default function ReglagesScreen() {
   const { snapshot } = useDevice();
   const { settings, setStartupRoutinesEnabled, activateMode } = useModes();
+  const update = useUpdates();
+  const bridge = desktop();
+
+  const updateStatusLabel = (): string => {
+    switch (update.stage) {
+      case 'checking':
+        return 'Vérification…';
+      case 'available':
+        return update.latestVersion ? `${update.latestVersion} disponible` : 'Mise à jour disponible';
+      case 'downloading':
+        return typeof update.progress === 'number' ? `Téléchargement ${update.progress}%` : 'Téléchargement…';
+      case 'ready':
+        return 'Prête à installer';
+      case 'error':
+        return 'Échec de la vérification';
+      case 'up-to-date':
+        return 'À jour';
+      default:
+        return '—';
+    }
+  };
 
   return (
     <ScrollView
@@ -73,10 +95,42 @@ export default function ReglagesScreen() {
         </View>
       </Card>
 
+      <SectionHeader title="Mises à jour" subtitle="Gardez l'application à jour" />
+      <Card style={styles.updatesCard}>
+        <View style={styles.deviceRow}>
+          <Text style={styles.deviceLabel}>Version installée</Text>
+          <Text style={styles.deviceValue}>{update.currentVersion}</Text>
+        </View>
+        <View style={styles.deviceRow}>
+          <Text style={styles.deviceLabel}>Statut</Text>
+          <Text style={styles.deviceValue}>{updateStatusLabel()}</Text>
+        </View>
+        {update.error ? <Text style={styles.updateError}>{update.error}</Text> : null}
+        <Button
+          label={update.stage === 'checking' ? 'Vérification…' : 'Rechercher une mise à jour'}
+          variant="secondary"
+          onPress={() => void update.check()}
+          loading={update.stage === 'checking'}
+        />
+        {(update.stage === 'available' || update.stage === 'ready') && update.canSelfInstall ? (
+          <Button
+            label={update.stage === 'ready' ? 'Redémarrer et installer' : 'Installer et redémarrer'}
+            onPress={() => void update.applyUpdate()}
+          />
+        ) : null}
+        <Toggle
+          label="Mise à jour automatique"
+          description="Télécharge les nouvelles versions en arrière-plan et les installe à la fermeture de l'application."
+          value={update.autoUpdate}
+          onChange={update.setAutoUpdate}
+        />
+      </Card>
+
       <SectionHeader title="À propos" />
       <Text style={styles.about}>
         123Système fait partie du projet Synapse. Toutes vos personnalisations restent sur votre appareil :
-        aucun compte, aucun serveur, aucune donnée envoyée.
+        aucun compte, aucun serveur, aucune donnée envoyée.{' '}
+        {bridge ? `Bureau ${bridge.platform}, v${bridge.appVersion}.` : ''}
       </Text>
     </ScrollView>
   );
@@ -132,5 +186,12 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     fontSize: Typography.sizes.sm,
     lineHeight: 20,
+  },
+  updateError: {
+    color: Colors.error,
+    fontSize: Typography.sizes.xs,
+  },
+  updatesCard: {
+    gap: Spacing.sm,
   },
 });

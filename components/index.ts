@@ -15,3 +15,4 @@ export { ModeCard } from './feature/ModeCard';
 export { RoutineRow } from './feature/RoutineRow';
 export { StatusCard } from './feature/StatusCard';
 export { WidgetCard } from './feature/WidgetCard';
+export { UpdateBanner } from './feature/UpdateBanner';

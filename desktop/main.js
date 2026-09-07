@@ -35,8 +35,9 @@ const AUTO_HIDE_POLL_MS = 150;
 
 log.transports.file.level = 'info';
 autoUpdater.logger = log;
-// We drive download and install from the UI so the user is never surprised by
-// a restart; see `updates:download` / `updates:install` below.
+// Default to a fully manual pipeline so the user is never surprised by a
+// restart; see `updates:download` / `updates:install` below. The settings
+// screen can flip both flags via `updates:set-auto`.
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = false;
 
@@ -429,6 +430,14 @@ ipcMain.handle('updates:download', async () => {
 // relaunches it — the "désinstalle puis redémarre" step of the update flow.
 ipcMain.on('updates:install', () => {
   setImmediate(() => autoUpdater.quitAndInstall(false, true));
+});
+
+// With automatic updates on, a found update downloads by itself and the
+// installer replaces the build silently the next time the app quits.
+ipcMain.on('updates:set-auto', (_event, enabled) => {
+  autoUpdater.autoDownload = !!enabled;
+  autoUpdater.autoInstallOnAppQuit = !!enabled;
+  log.info(`[updates] automatic updates ${enabled ? 'enabled' : 'disabled'}`);
 });
 
 ipcMain.handle('shell:open-external', async (_event, url) => {
