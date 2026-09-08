@@ -41,6 +41,15 @@ autoUpdater.logger = log;
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = false;
 
+// Le nom de l'app contient un « è », qui se retrouve dans le User-Agent.
+// Les requêtes du renderer passées à protocol.handle voient leurs en-têtes
+// reconstitués par undici, qui exige des ByteString (octets ≤ 255) : le « è »
+// y arrive re-décodé en U+FFFD (65533) et la conversion lève une TypeError —
+// chaque requête de ressource échouait, d'où la page blanche au lancement.
+// On force l'ASCII dans l'User-Agent uniquement ; le nom accentué reste
+// utilisé partout ailleurs (installeur, barre de titre, menus).
+app.userAgentFallback = String(app.userAgentFallback || '').replaceAll('123Système', '123Systeme');
+
 // The preload reads this synchronously; registered at module load so it is
 // always answered before the first window is created.
 ipcMain.on('app:version', (event) => {
