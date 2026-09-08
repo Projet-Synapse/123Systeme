@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20260908T150405018Z-21392-2d241d3b16e8",
+  "runId": "20260908T150405018Z-21392-2d241d3b16e8",
+  "runStatus": "inconclusive",
+  "coverage": {
+    "status": "partial",
+    "reasons": [
+      {
+        "code": "baseline_partial",
+        "stage": "baseline",
+        "target": ".",
+        "detail": "baseline capture had enumeration or snapshot errors",
+        "affectsCompletion": true
+      },
+      {
+        "code": "scanner_failed",
+        "stage": "scan",
+        "target": "desktop/main.js",
+        "detail": "spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline",
+        "target": ".",
+        "detail": "baseline_partial: baseline capture had enumeration or snapshot errors",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "scan",
+        "target": "desktop/main.js",
+        "detail": "scanner_failed: spawnSync C:\\Program Files\\nodejs\\node.exe ETIMEDOUT",
+        "affectsCompletion": true
+      }
+    ]
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": "6aa4149159c90f182e04e8d8d8cc077ed0fbe3b7",
+  "diffHash": "bee22fe3aaf9da02f6d27d0f523fb14afb8c0577194a9f49855da5eeb6c756df",
+  "rulesVersion": "unavailable",
+  "sessionHash": "17b6ff2c4d6d590ebd93933d587159e24cf64a24550153df170d369c7faf8fd2",
+  "reportRef": ".mimosa/reports/task-review-sess_3132afc5-8ef4-4e92-a1f9-9589f95cf7bf-20260908T150405018Z-21392-2d241d3b16e8.json",
+  "events": [],
+  "observedFindingIds": [],
+  "verifiedFiles": [],
+  "recordedAt": "2026-09-08T15:04:06.832Z"
+}
