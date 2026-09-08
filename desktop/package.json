@@ -1,7 +1,7 @@
 {
   "name": "systeme-desktop",
   "productName": "123Système",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "123Système — personnalisation avancée de l'appareil",
   "main": "main.js",
   "author": {
