@@ -45,3 +45,6 @@ release/
 
 # Tooling caches
 .eslintcache
+
+# Artefacts locaux du plugin de sécurité Mimosa
+.mimosa/
