@@ -1,20 +1,42 @@
 // Powered by OnSpace.AI — Widgets : grille adaptative, chaque widget rendu
 // réellement (horloge vivante, note, raccourcis, moniteur, compte à rebours).
-import { useState } from 'react';
+// Un widget ajouté ouvre directement ses options : pas de chasse à l'écran.
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Button, Card, EmptyState, Input, SectionHeader, Stepper, WidgetCard } from '@/components';
+import {
+  Button,
+  Card,
+  EmptyState,
+  Input,
+  SectionHeader,
+  Stepper,
+  WidgetCard,
+  confirmDelete,
+} from '@/components';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useDevice } from '@/contexts/DeviceContext';
 import { useWidgets, WIDGET_KIND_LABELS } from '@/contexts/WidgetsContext';
 import type { WidgetKind } from '@/types';
+
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export default function WidgetsScreen() {
   const { widgets, addWidget, updateWidget, removeWidget, moveWidget } = useWidgets();
   const { isWide } = useDevice();
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const sorted = [...widgets].sort((a, b) => a.position - b.position);
+  const sorted = useMemo(() => [...widgets].sort((a, b) => a.position - b.position), [widgets]);
   const editing = widgets.find((w) => w.id === editingId) ?? null;
+
+  const dateInvalid =
+    editing?.kind === 'countdown' &&
+    (editing.options.date ?? '').trim() !== '' &&
+    !DATE_PATTERN.test((editing.options.date ?? '').trim());
+
+  const createWidget = (kind: WidgetKind) => {
+    const widget = addWidget(kind);
+    setEditingId(widget.id);
+  };
 
   return (
     <ScrollView
@@ -27,7 +49,13 @@ export default function WidgetsScreen() {
 
       <View style={styles.kindRow}>
         {(Object.keys(WIDGET_KIND_LABELS) as WidgetKind[]).map((kind) => (
-          <Pressable key={kind} style={styles.kindButton} onPress={() => addWidget(kind)}>
+          <Pressable
+            key={kind}
+            style={styles.kindButton}
+            onPress={() => createWidget(kind)}
+            accessibilityRole="button"
+            accessibilityLabel={`Ajouter un widget ${WIDGET_KIND_LABELS[kind].title}`}
+          >
             <Text style={styles.kindLabel}>+ {WIDGET_KIND_LABELS[kind].title}</Text>
           </Pressable>
         ))}
@@ -45,6 +73,8 @@ export default function WidgetsScreen() {
             <Pressable
               key={widget.id}
               onPress={() => setEditingId(widget.id === editingId ? null : widget.id)}
+              accessibilityRole="button"
+              accessibilityLabel={`${widget.title} — options`}
             >
               <WidgetCard
                 widget={widget}
@@ -77,12 +107,16 @@ export default function WidgetsScreen() {
             format={(value) => (value === 2 ? 'Pleine largeur' : 'Demi-largeur')}
           />
           {editing.kind === 'countdown' ? (
-            <Input
-              label="Date cible (AAAA-MM-JJ)"
-              placeholder="2027-01-01"
-              value={editing.options.date ?? ''}
-              onChangeText={(date) => updateWidget(editing.id, { options: { ...editing.options, date } })}
-            />
+            <>
+              <Input
+                label="Date cible (AAAA-MM-JJ)"
+                placeholder="2027-01-01"
+                value={editing.options.date ?? ''}
+                onChangeText={(date) => updateWidget(editing.id, { options: { ...editing.options, date } })}
+                inputMode="numeric"
+              />
+              {dateInvalid ? <Text style={styles.error}>Format attendu : AAAA-MM-JJ.</Text> : null}
+            </>
           ) : null}
           {editing.kind === 'shortcuts' ? (
             <Input
@@ -97,18 +131,31 @@ export default function WidgetsScreen() {
           ) : null}
           <View style={styles.editorActions}>
             <Button
-              label="↑"
+              label="↑ Monter"
               variant="ghost"
               onPress={() => moveWidget(editing.id, true)}
               style={styles.moveButton}
             />
             <Button
-              label="↓"
+              label="↓ Descendre"
               variant="ghost"
               onPress={() => moveWidget(editing.id, false)}
               style={styles.moveButton}
             />
-            <Button label="Supprimer" variant="danger" onPress={() => removeWidget(editing.id)} />
+            <Button
+              label="Supprimer"
+              variant="danger"
+              onPress={() =>
+                confirmDelete(
+                  'Supprimer ce widget ?',
+                  `« ${editing.title} » disparaîtra de la grille.`,
+                  () => {
+                    removeWidget(editing.id);
+                    setEditingId(null);
+                  },
+                )
+              }
+            />
           </View>
         </Card>
       ) : null}
@@ -175,11 +222,18 @@ const styles = StyleSheet.create({
   },
   editorActions: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: Spacing.sm,
     marginTop: Spacing.lg,
   },
   moveButton: {
-    minWidth: 52,
+    flexGrow: 1,
+    flexBasis: 120,
+  },
+  error: {
+    color: Colors.error,
+    fontSize: Typography.sizes.xs,
+    marginTop: Spacing.xs,
   },
   hint: {
     color: Colors.textMuted,

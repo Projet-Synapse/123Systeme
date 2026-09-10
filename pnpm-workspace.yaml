@@ -1,0 +1,6 @@
+# Scripts de post-installation approuvés (pnpm 12 les bloque par défaut).
+# electron : télécharge le binaire pour `desktop:dev` et les builds bureau.
+# unrs-resolver : binaire natif utilisé par la résolution ESLint.
+allowBuilds:
+  electron: true
+  unrs-resolver: true

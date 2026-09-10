@@ -46,7 +46,13 @@ export function RoutineRow({ routine, mode, onToggle, onRemove, onPress }: Routi
         </View>
       </Pressable>
       <View style={styles.actions}>
-        <Toggle label="" value={routine.enabled} onChange={onToggle} accentColor={mode?.color} />
+        <Toggle
+          label=""
+          accessibilityLabel={`Routine « ${mode?.name ?? 'Mode supprimé'} » active`}
+          value={routine.enabled}
+          onChange={onToggle}
+          accentColor={mode?.color}
+        />
         <Pressable onPress={onRemove} style={styles.remove} accessibilityLabel="Supprimer la routine">
           <MaterialIcons name="delete-outline" size={20} color={Colors.textMuted} />
         </Pressable>

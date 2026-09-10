@@ -4,18 +4,28 @@ import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 
 interface ToggleProps {
   label: string;
+  /** Libellé exposé aux lecteurs d'écran quand le libellé visible est vide. */
+  accessibilityLabel?: string;
   description?: string;
   value: boolean;
   onChange: (value: boolean) => void;
   accentColor?: string;
 }
 
-export function Toggle({ label, description, value, onChange, accentColor }: ToggleProps) {
+export function Toggle({
+  label,
+  accessibilityLabel,
+  description,
+  value,
+  onChange,
+  accentColor,
+}: ToggleProps) {
   return (
     <Pressable
       style={styles.row}
       onPress={() => onChange(!value)}
       role="switch"
+      accessibilityLabel={accessibilityLabel}
       accessibilityState={{ checked: value }}
     >
       <View style={styles.textWrap}>

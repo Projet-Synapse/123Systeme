@@ -4,7 +4,17 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Button, Card, IconPicker, Input, Row, SectionHeader, Stepper, Toggle } from '@/components';
+import {
+  Button,
+  Card,
+  IconPicker,
+  Input,
+  Row,
+  SectionHeader,
+  Stepper,
+  Toggle,
+  confirmDelete,
+} from '@/components';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 import { useModes } from '@/contexts/ModesContext';
 import { MODE_COLORS, DAY_LABELS, type ModeSettings, type RoutineTrigger } from '@/types';
@@ -18,11 +28,14 @@ const TRIGGER_TYPES: { type: RoutineTrigger['type']; label: string }[] = [
 ];
 
 export default function ModeEditorScreen() {
-  const params = useLocalSearchParams<{ id?: string; modeId?: string }>();
+  const params = useLocalSearchParams<{ id?: string; modeId?: string; newRoutine?: string }>();
   const { modes, addMode, updateMode, removeMode, activateMode, addRoutine, routines, removeRoutine } =
     useModes();
 
-  const existing = useMemo(() => modes.find((m) => m.id === params.id) ?? null, [modes, params.id]);
+  // `modeId` reste accepté pour les liens profonds existants (« Ajouter une
+  // routine » depuis l'écran Modes envoie désormais `id`).
+  const modeIdParam = params.id ?? params.modeId;
+  const existing = useMemo(() => modes.find((m) => m.id === modeIdParam) ?? null, [modes, modeIdParam]);
 
   const [name, setName] = useState(existing?.name ?? '');
   const [icon, setIcon] = useState(existing?.icon ?? 'auto-awesome');
@@ -67,7 +80,7 @@ export default function ModeEditorScreen() {
     if (current) updateMode(current.id, patch);
   };
 
-  const save = () => {
+  const save = (activate: boolean) => {
     if (!current) {
       const created = addMode({
         name: name.trim() || 'Nouveau mode',
@@ -75,11 +88,11 @@ export default function ModeEditorScreen() {
         color: accent,
         settings: { ...settingsState, accentColor: accent },
       });
-      activateMode(created.id);
+      if (activate) activateMode(created.id);
     } else {
       patchBase({ name: name.trim() || current.name, icon, color: accent });
       patchSettings({ accentColor: accent });
-      activateMode(current.id);
+      if (activate) activateMode(current.id);
     }
     router.back();
   };
@@ -87,6 +100,7 @@ export default function ModeEditorScreen() {
   const [routineType, setRoutineType] = useState<RoutineTrigger['type']>('schedule');
   const [routineTime, setRoutineTime] = useState('22:00');
   const [routineDays, setRoutineDays] = useState<number[]>([0, 1, 2, 3, 4]);
+  const [routineError, setRoutineError] = useState<string | null>(null);
 
   const canEdit = Boolean(current);
 
@@ -123,7 +137,9 @@ export default function ModeEditorScreen() {
                 patchSettings({ accentColor: color });
               }}
               style={[styles.swatch, { backgroundColor: color }, accent === color && styles.swatchSelected]}
+              accessibilityRole="button"
               accessibilityLabel={`Couleur ${color}`}
+              accessibilityState={{ selected: accent === color }}
             />
           ))}
         </View>
@@ -188,8 +204,12 @@ export default function ModeEditorScreen() {
                     ? "Au démarrage de l'app"
                     : 'Manuel'
               }
-              onPress={() => removeRoutine(routine.id)}
               right="Retirer"
+              onPress={() =>
+                confirmDelete('Supprimer la routine ?', 'Ce déclencheur automatique disparaîtra.', () =>
+                  removeRoutine(routine.id),
+                )
+              }
             />
           ))}
           <Card style={styles.section}>
@@ -200,6 +220,8 @@ export default function ModeEditorScreen() {
                   key={type}
                   style={[styles.typeButton, routineType === type && styles.typeButtonOn]}
                   onPress={() => setRoutineType(type)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: routineType === type }}
                 >
                   <Text style={[styles.typeLabel, routineType === type && styles.typeLabelOn]}>{label}</Text>
                 </Pressable>
@@ -207,7 +229,12 @@ export default function ModeEditorScreen() {
             </View>
             {routineType === 'schedule' ? (
               <>
-                <Input label="Heure (HH:MM)" value={routineTime} onChangeText={setRoutineTime} />
+                <Input
+                  label="Heure (HH:MM)"
+                  value={routineTime}
+                  onChangeText={setRoutineTime}
+                  inputMode="numeric"
+                />
                 <View style={styles.spacing} />
                 <View style={styles.daysRow}>
                   {DAY_LABELS.map((label, index) => {
@@ -221,6 +248,9 @@ export default function ModeEditorScreen() {
                             prev.includes(index) ? prev.filter((d) => d !== index) : [...prev, index].sort(),
                           )
                         }
+                        accessibilityRole="button"
+                        accessibilityLabel={`Jour ${label}`}
+                        accessibilityState={{ selected: on }}
                       >
                         <Text style={[styles.dayLabel, on && styles.dayLabelOn]}>{label}</Text>
                       </Pressable>
@@ -229,18 +259,35 @@ export default function ModeEditorScreen() {
                 </View>
               </>
             ) : null}
+            {routineError ? <Text style={styles.routineError}>{routineError}</Text> : null}
             <View style={styles.spacing} />
             <Button
               label="+ Ajouter la routine"
               variant="secondary"
               onPress={() => {
                 if (!current) return;
-                addRoutine(
-                  current.id,
-                  routineType === 'schedule'
-                    ? { type: 'schedule', days: routineDays, time: routineTime }
-                    : { type: routineType },
-                );
+                if (routineType === 'schedule') {
+                  const match = /^(\d{1,2}):(\d{2})$/.exec(routineTime.trim());
+                  const hours = match ? Number(match[1]) : NaN;
+                  const minutes = match ? Number(match[2]) : NaN;
+                  if (!match || hours > 23 || minutes > 59) {
+                    setRoutineError('Heure invalide : format attendu HH:MM (ex. 22:30).');
+                    return;
+                  }
+                  if (routineDays.length === 0) {
+                    setRoutineError('Choisissez au moins un jour de déclenchement.');
+                    return;
+                  }
+                  setRoutineError(null);
+                  addRoutine(current.id, {
+                    type: 'schedule',
+                    days: routineDays,
+                    time: routineTime.trim().padStart(5, '0'),
+                  });
+                  return;
+                }
+                setRoutineError(null);
+                addRoutine(current.id, { type: routineType });
               }}
             />
           </Card>
@@ -248,16 +295,25 @@ export default function ModeEditorScreen() {
       ) : null}
 
       <View style={styles.footer}>
-        <Button label="Enregistrer et activer" onPress={save} />
+        <Button label="Enregistrer et activer" onPress={() => save(true)} accentColor={accent} />
+        {current ? (
+          <Button label="Enregistrer sans activer" variant="ghost" onPress={() => save(false)} />
+        ) : null}
         {current && !current.isSystem ? (
           <View style={styles.footerRow}>
             <Button
               label="Supprimer ce mode"
               variant="danger"
-              onPress={() => {
-                removeMode(current.id);
-                router.back();
-              }}
+              onPress={() =>
+                confirmDelete(
+                  'Supprimer ce mode ?',
+                  `« ${current.name} » et ses routines disparaîtront définitivement.`,
+                  () => {
+                    removeMode(current.id);
+                    router.back();
+                  },
+                )
+              }
               style={styles.grow}
             />
             <Button label="Annuler" variant="ghost" onPress={router.back} style={styles.grow} />
@@ -286,6 +342,11 @@ const styles = StyleSheet.create({
   },
   cloneNote: {
     color: Colors.gold,
+    fontSize: Typography.sizes.xs,
+    marginTop: Spacing.sm,
+  },
+  routineError: {
+    color: Colors.error,
     fontSize: Typography.sizes.xs,
     marginTop: Spacing.sm,
   },

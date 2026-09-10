@@ -2,22 +2,17 @@
 // les activent automatiquement.
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Button, EmptyState, ModeCard, RoutineRow, SectionHeader } from '@/components';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Button, EmptyState, ModeCard, RoutineRow, SectionHeader, Toast, confirmDelete } from '@/components';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useModes } from '@/contexts/ModesContext';
-import type { Mode, RoutineTrigger } from '@/types';
-
-const TRIGGER_LABELS: Record<RoutineTrigger['type'], string> = {
-  manual: 'Manuel',
-  startup: 'Au démarrage',
-  schedule: 'Horaire',
-};
+import { notifyHaptic } from '@/hooks/notifyHaptic';
+import type { Mode } from '@/types';
 
 export default function ModesScreen() {
   const router = useRouter();
   const { modes, routines, settings, activeMode, activateMode, updateRoutine, removeRoutine } = useModes();
-  const [editingRoutineId, setEditingRoutineId] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const routineCountByMode = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -39,7 +34,14 @@ export default function ModesScreen() {
   const addQuickRoutine = () => {
     if (modes.length === 0) return;
     const mode = modes[0];
-    router.push({ pathname: '/mode-editor', params: { modeId: mode.id, newRoutine: '1' } });
+    router.push({ pathname: '/mode-editor', params: { id: mode.id, newRoutine: '1' } });
+  };
+
+  const toggleActivate = (mode: Mode) => {
+    const turningOff = activeMode?.id === mode.id;
+    activateMode(turningOff ? null : mode.id);
+    notifyHaptic();
+    setToast(turningOff ? `Mode ${mode.name} désactivé` : `Mode ${mode.name} activé`);
   };
 
   return (
@@ -60,7 +62,7 @@ export default function ModesScreen() {
             mode={mode}
             active={activeMode?.id === mode.id}
             routineCount={routineCountByMode[mode.id] ?? 0}
-            onActivate={() => activateMode(activeMode?.id === mode.id ? null : mode.id)}
+            onActivate={() => toggleActivate(mode)}
             onOpen={() => openEditor(mode)}
           />
         ))}
@@ -72,7 +74,7 @@ export default function ModesScreen() {
         title="Routines"
         subtitle={
           settings.startupRoutinesEnabled
-            ? 'Les routines « au démarrage » s’appliquent à l’ouverture.'
+            ? 'Les routines « au démarrage » s’appliquent à l’ouverture. Touchez-en une pour la retrouver dans son mode.'
             : 'Routines au démarrage désactivées (voir Réglages).'
         }
       />
@@ -92,20 +94,22 @@ export default function ModesScreen() {
             routine={routine}
             mode={mode}
             onToggle={(enabled) => updateRoutine(routine.id, { enabled })}
-            onRemove={() => removeRoutine(routine.id)}
-            onPress={() => setEditingRoutineId(editingRoutineId === routine.id ? null : routine.id)}
+            onRemove={() =>
+              confirmDelete(
+                'Supprimer la routine ?',
+                mode
+                  ? `Le mode ${mode.name} ne s'activera plus automatiquement.`
+                  : 'Elle ne se déclenchera plus.',
+                () => removeRoutine(routine.id),
+              )
+            }
+            // Toucher une routine ouvre l'éditeur de son mode, routines en vue.
+            onPress={() => router.push({ pathname: '/mode-editor', params: { id: routine.modeId } })}
           />
         ))
       )}
 
-      {editingRoutineId ? (
-        <Pressable style={styles.hintRow} onPress={() => setEditingRoutineId(null)}>
-          <Text style={styles.hint}>
-            Touchez une routine pour la replier. Déclencheurs gérés dans l'éditeur de mode :
-            {Object.values(TRIGGER_LABELS).join(' · ')}.
-          </Text>
-        </Pressable>
-      ) : null}
+      <Toast message={toast} onDone={() => setToast(null)} />
     </ScrollView>
   );
 }
@@ -138,12 +142,5 @@ const styles = StyleSheet.create({
   },
   createButton: {
     marginTop: Spacing.lg,
-  },
-  hintRow: {
-    marginTop: Spacing.md,
-  },
-  hint: {
-    color: Colors.textMuted,
-    fontSize: Typography.sizes.xs,
   },
 });

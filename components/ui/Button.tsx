@@ -11,6 +11,8 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   icon?: string;
+  /** Accent du mode actif : colore le variant primaire. */
+  accentColor?: string;
   style?: ViewStyle;
 }
 
@@ -21,15 +23,26 @@ const VARIANTS: Record<Variant, { bg: string; fg: string; border?: string }> = {
   danger: { bg: 'transparent', fg: Colors.error, border: Colors.error },
 };
 
-export function Button({ label, onPress, variant = 'primary', disabled, loading, style }: ButtonProps) {
+export function Button({
+  label,
+  onPress,
+  variant = 'primary',
+  disabled,
+  loading,
+  accentColor,
+  style,
+}: ButtonProps) {
   const theme = VARIANTS[variant];
+  const background = variant === 'primary' && accentColor ? accentColor : theme.bg;
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
+      accessibilityRole="button"
+      accessibilityLabel={label}
       style={({ pressed }) => [
         styles.base,
-        { backgroundColor: theme.bg, borderColor: theme.border ?? 'transparent' },
+        { backgroundColor: background, borderColor: theme.border ?? 'transparent' },
         (disabled || loading) && styles.disabled,
         pressed && styles.pressed,
         style,

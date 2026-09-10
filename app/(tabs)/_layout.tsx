@@ -1,13 +1,43 @@
 // Powered by OnSpace.AI
 import { MaterialIcons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
+import { useEffect } from 'react';
 import { Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { UpdateBanner } from '@/components';
 import { Colors } from '@/constants/theme';
+import { useAccent } from '@/hooks/useAccent';
+
+/** Onglets dans l'ordre des touches 1 à 5. */
+const TAB_ROUTES = ['/', '/modes', '/widgets', '/docks', '/reglages'] as const;
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const accent = useAccent();
+  const router = useRouter();
+
+  // Le mode actif colore l'interface : la tab bar suit son accent.
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    document.title = '123Système';
+  }, []);
+
+  // Bureau : les touches 1 à 5 basculent d'onglet, sauf en pleine saisie.
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      const index = Number(event.key) - 1;
+      if (index < 0 || index >= TAB_ROUTES.length || event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || target?.isContentEditable) return;
+      router.push(TAB_ROUTES[index]);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [router]);
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.background }}>
@@ -28,7 +58,7 @@ export default function TabLayout() {
             borderTopWidth: 1,
             borderTopColor: Colors.border,
           },
-          tabBarActiveTintColor: Colors.primary,
+          tabBarActiveTintColor: accent,
           tabBarInactiveTintColor: Colors.textMuted,
           tabBarLabelStyle: { fontSize: 12, fontWeight: '500' },
         }}

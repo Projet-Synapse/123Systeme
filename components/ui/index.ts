@@ -7,4 +7,6 @@ export { Input } from './Input';
 export { Row } from './Row';
 export { SectionHeader } from './SectionHeader';
 export { Stepper } from './Stepper';
+export { Toast } from './Toast';
 export { Toggle } from './Toggle';
+export { confirmDelete } from './confirm';

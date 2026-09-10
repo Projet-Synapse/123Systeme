@@ -7,7 +7,9 @@ export { Input } from './ui/Input';
 export { Row } from './ui/Row';
 export { SectionHeader } from './ui/SectionHeader';
 export { Stepper } from './ui/Stepper';
+export { Toast } from './ui/Toast';
 export { Toggle } from './ui/Toggle';
+export { confirmDelete } from './ui/confirm';
 
 export { DockPreview } from './feature/DockPreview';
 export { IconPicker, ICON_CHOICES } from './feature/IconPicker';

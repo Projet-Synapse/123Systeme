@@ -3,9 +3,10 @@
 // configuration reste éditable et l'aperçu montre le rendu.
 import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Button, Card, Chip, DockPreview, EmptyState, SectionHeader } from '@/components';
+import { Button, Card, Chip, DockPreview, EmptyState, SectionHeader, confirmDelete } from '@/components';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useDocks } from '@/contexts/DocksContext';
+import { useAccent } from '@/hooks/useAccent';
 
 const POSITION_LABELS: Record<string, string> = {
   bottom: 'Bas',
@@ -17,6 +18,7 @@ const POSITION_LABELS: Record<string, string> = {
 export default function DocksScreen() {
   const router = useRouter();
   const { docks, desktopReady, addDock, openOnDesktop, closeOnDesktop, removeDock } = useDocks();
+  const accent = useAccent();
 
   const createAndEdit = () => {
     const dock = addDock();
@@ -50,7 +52,7 @@ export default function DocksScreen() {
           title="Aucun dock"
           subtitle="Créez votre premier dock : il apparaîtra sur le bord de l'écran que vous choisirez."
         >
-          <Button label="+ Créer mon premier dock" onPress={createAndEdit} />
+          <Button label="+ Créer mon premier dock" accentColor={accent} onPress={createAndEdit} />
         </EmptyState>
       ) : (
         docks.map((dock) => (
@@ -73,6 +75,7 @@ export default function DocksScreen() {
                 <>
                   <Button
                     label="Ouvrir"
+                    accentColor={dock.accentColor}
                     onPress={() => void openOnDesktop(dock.id)}
                     style={styles.actionButton}
                   />
@@ -93,7 +96,13 @@ export default function DocksScreen() {
               <Button
                 label="Supprimer"
                 variant="danger"
-                onPress={() => removeDock(dock.id)}
+                onPress={() =>
+                  confirmDelete(
+                    'Supprimer ce dock ?',
+                    `« ${dock.name} » et ses ${dock.items.length} icône${dock.items.length > 1 ? 's' : ''} disparaîtront.`,
+                    () => removeDock(dock.id),
+                  )
+                }
                 style={styles.actionButton}
               />
             </View>
@@ -104,7 +113,7 @@ export default function DocksScreen() {
       {docks.length > 0 ? (
         <>
           <SectionHeader title="Nouveau" />
-          <Button label="+ Créer un dock" onPress={createAndEdit} />
+          <Button label="+ Créer un dock" accentColor={accent} onPress={createAndEdit} />
         </>
       ) : null}
     </ScrollView>
