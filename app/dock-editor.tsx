@@ -14,6 +14,7 @@ import {
   SectionHeader,
   Stepper,
   Toggle,
+  confirmDelete,
 } from '@/components';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 import { useDocks } from '@/contexts/DocksContext';
@@ -93,6 +94,9 @@ export default function DockEditorScreen() {
               key={value}
               style={[styles.position, dock.position === value && styles.positionOn]}
               onPress={() => updateDock(dock.id, { position: value })}
+              accessibilityRole="button"
+              accessibilityLabel={`Position ${label}`}
+              accessibilityState={{ selected: dock.position === value }}
             >
               <Text style={styles.positionIcon}>
                 {icon === 'south' ? '↓' : icon === 'north' ? '↑' : icon === 'west' ? '←' : '→'}
@@ -132,7 +136,9 @@ export default function DockEditorScreen() {
                 { backgroundColor: color },
                 dock.accentColor === color && styles.swatchSelected,
               ]}
+              accessibilityRole="button"
               accessibilityLabel={`Couleur ${color}`}
+              accessibilityState={{ selected: dock.accentColor === color }}
             />
           ))}
         </View>
@@ -168,7 +174,14 @@ export default function DockEditorScreen() {
           title={item.label}
           subtitle={`${ITEM_KINDS.find((k) => k.value === item.kind)?.label ?? item.kind} · ${item.target}`}
           right="Retirer"
-          onPress={() => removeItem(dock.id, item.id)}
+          onPress={() =>
+            confirmDelete(
+              'Retirer cette icône ?',
+              `« ${item.label} » quittera le dock.`,
+              () => removeItem(dock.id, item.id),
+              'Retirer',
+            )
+          }
         />
       ))}
 
@@ -180,6 +193,8 @@ export default function DockEditorScreen() {
               key={value}
               style={[styles.kindButton, itemKind === value && styles.kindButtonOn]}
               onPress={() => setItemKind(value)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: itemKind === value }}
             >
               <Text style={[styles.kindLabel, itemKind === value && styles.kindLabelOn]}>{label}</Text>
             </Pressable>

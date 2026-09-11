@@ -66,6 +66,7 @@ export function IconPicker({ label, value, onChange }: IconPickerProps) {
               key={name}
               onPress={() => onChange(name)}
               style={[styles.icon, selected && styles.iconSelected]}
+              accessibilityRole="button"
               accessibilityLabel={`Icône ${name}`}
               accessibilityState={{ selected }}
             >

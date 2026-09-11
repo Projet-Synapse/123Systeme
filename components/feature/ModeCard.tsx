@@ -18,6 +18,8 @@ export function ModeCard({ mode, active, routineCount, onActivate, onOpen }: Mod
     <Pressable
       style={({ pressed }) => [styles.card, active && styles.active, pressed && styles.pressed]}
       onPress={onOpen}
+      accessibilityRole="button"
+      accessibilityLabel={`Modifier le mode ${mode.name}`}
     >
       <View style={styles.header}>
         <View style={[styles.iconWrap, { backgroundColor: `${mode.color}22` }]}>
@@ -55,6 +57,8 @@ export function ModeCard({ mode, active, routineCount, onActivate, onOpen }: Mod
           event.stopPropagation();
           onActivate();
         }}
+        accessibilityRole="button"
+        accessibilityLabel={active ? `Désactiver le mode ${mode.name}` : `Activer le mode ${mode.name}`}
       >
         <Text style={[styles.buttonLabel, { color: active ? Colors.textPrimary : mode.color }]}>
           {active ? 'Désactiver' : 'Activer'}

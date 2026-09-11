@@ -4,14 +4,16 @@ import { Button, Card, Chip, SectionHeader, Toggle } from '@/components';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useDevice } from '@/contexts/DeviceContext';
 import { useModes } from '@/contexts/ModesContext';
+import { useAccent } from '@/hooks/useAccent';
 import { useUpdates } from '@/hooks/useUpdates';
 import { desktop, PLATFORM_LABELS } from '@/services/platform';
 
 export default function ReglagesScreen() {
   const { snapshot } = useDevice();
-  const { settings, setStartupRoutinesEnabled, activateMode } = useModes();
+  const { settings, setStartupRoutinesEnabled, activateMode, activeMode } = useModes();
   const update = useUpdates();
   const bridge = desktop();
+  const accent = useAccent();
 
   const updateStatusLabel = (): string => {
     switch (update.stage) {
@@ -48,25 +50,18 @@ export default function ReglagesScreen() {
           description="Appliquer les routines « au démarrage de l'app » à l'ouverture."
           value={settings.startupRoutinesEnabled}
           onChange={setStartupRoutinesEnabled}
-        />
-        <Toggle
-          label="Aucun mode par défaut"
-          description="Repartir sans mode actif à chaque ouverture."
-          value={settings.activeModeId === null}
-          onChange={(value) => {
-            if (value) activateMode(null);
-          }}
+          accentColor={accent}
         />
       </Card>
 
       <SectionHeader title="Mode actif" />
       <Card style={styles.activeCard}>
         <Text style={styles.activeText}>
-          {settings.activeModeId
-            ? "Un mode est actuellement actif : il colore toute l'interface."
-            : 'Aucun mode actif.'}
+          {activeMode
+            ? `« ${activeMode.name} » est actif : son accent colore l'interface.`
+            : 'Aucun mode actif : l’interface garde la palette par défaut.'}
         </Text>
-        {settings.activeModeId ? (
+        {activeMode ? (
           <Button label="Désactiver le mode" variant="secondary" onPress={() => activateMode(null)} />
         ) : null}
       </Card>
