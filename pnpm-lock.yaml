@@ -66,8 +66,8 @@ importers:
         specifier: 0.79.3
         version: 0.79.3(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.0.14)(react@19.2.8)(supports-color@10.2.2)
       react-native-gesture-handler:
-        specifier: ~2.24.0
-        version: 2.24.0(react-native@0.79.3(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.0.14)(react@19.2.8)(supports-color@10.2.2))(react@19.2.8)
+        specifier: ~3.3.0
+        version: 3.3.0(react-native@0.79.3(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.0.14)(react@19.2.8)(supports-color@10.2.2))(react@19.2.8)
       react-native-safe-area-context:
         specifier: 5.4.0
         version: 5.4.0(react-native@0.79.3(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.0.14)(react@19.2.8)(supports-color@10.2.2))(react@19.2.8)
@@ -638,10 +638,6 @@ packages:
     resolution: {integrity: sha512-0cp4PsWQ/9avqTVMCtZ+GirikIA36ikvjtHweU4/j8yLtgObI0+JUPhYFScgwlteveGB1rt3Cm8UhN04XayDig==}
     engines: {node: '>= 8.9.0'}
 
-  '@egjs/hammerjs@2.0.17':
-    resolution: {integrity: sha512-XQsZgjm2EcVUiZQf11UBJQfmZeEmOW8DpI1gsFeln6w0ae0ii4dMQEQ0kjl6DspdWX1aGY1/loyXnP0JS06e/A==}
-    engines: {node: '>=0.8.0'}
-
   '@electron/asar@3.4.1':
     resolution: {integrity: sha512-i4/rNPRS84t0vSRa2HorerGRXWyF4vThfHesw0dmcWHp+cspK743UanA0suA5Q5y8kzY2y6YKrvbIUn69BCAiA==}
     engines: {node: '>=10.12.0'}
@@ -1164,9 +1160,6 @@ packages:
   '@types/graceful-fs@4.1.9':
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
 
-  '@types/hammerjs@2.0.46':
-    resolution: {integrity: sha512-ynRvcq6wvqexJ9brDMS4BnBLzmr0e14d6ZJTEShTBWKymQiHwlAyGu0ZPEFI2Fh1U53F7tN9ufClWM5KvqkKOw==}
-
   '@types/http-cache-semantics@4.2.0':
     resolution: {integrity: sha512-L3LgimLHXtGkWikKnsPg0/VFx9OGZaC+eN1u4r+OB1XRqH3meBIAVC2zr1WdMH+RHmnRkqliQAOHNJ/E0j/e0Q==}
 
@@ -1199,6 +1192,9 @@ packages:
 
   '@types/plist@3.0.5':
     resolution: {integrity: sha512-E6OCaRmAe4WDmWNsL/9RMqdkkzDCY1etutkflWk4c+AcjDU07Pcz1fQwTX0TQz+Pxqn9i4L1TU3UFpjnrcDgxA==}
+
+  '@types/react-test-renderer@19.3.0':
+    resolution: {integrity: sha512-TX4p2D4Z2oigM3SXU7+QyLSUnSR0vR1S1Pfxm/qFL9nHQ3jclgi6ioGoWQmlIr1DeKRVmPJrmNlhgM0JlWlLUg==}
 
   '@types/react@19.0.14':
     resolution: {integrity: sha512-ixLZ7zG7j1fM0DijL9hDArwhwcCb4vqmePgwtV0GfnkHRSCUEv4LvzarcTdhoqgyMznUx/EhoTUv31CKZzkQlw==}
@@ -2855,9 +2851,6 @@ packages:
   hermes-parser@0.29.1:
     resolution: {integrity: sha512-xBHWmUtRC5e/UL0tI7Ivt2riA/YBq9+SiYFU7C1oBa/j2jYGlIF9043oak1F47ihuDIxQ5nbsKueYJDRY02UgA==}
 
-  hoist-non-react-statics@3.3.2:
-    resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
-
   hosted-git-info@4.1.0:
     resolution: {integrity: sha512-kyCuEOWjJqZuDbRHzL8V93NzQhwIB71oFWSyzVo+KPZI+pnQPPxucdkrOZvkLRnrf5URsQM+IJ09Dw29cRALIA==}
     engines: {node: '>=10'}
@@ -4036,8 +4029,8 @@ packages:
       react: '*'
       react-native: '*'
 
-  react-native-gesture-handler@2.24.0:
-    resolution: {integrity: sha512-ZdWyOd1C8axKJHIfYxjJKCcxjWEpUtUWgTOVY2wynbiveSQDm8X/PDyAKXSer/GOtIpjudUbACOndZXCN3vHsw==}
+  react-native-gesture-handler@3.3.0:
+    resolution: {integrity: sha512-ZCTlJ09nE3GPbm7J74lvwpxmx1TQ/7MDlHZNLARVYTN82k21mJUJ7BmI9eWjEi8eevHiAudI5O1Cpnt0rJfoJA==}
     peerDependencies:
       react: '*'
       react-native: '*'
@@ -5606,10 +5599,6 @@ snapshots:
       ajv: 6.15.0
       ajv-keywords: 3.5.2(ajv@6.15.0)
 
-  '@egjs/hammerjs@2.0.17':
-    dependencies:
-      '@types/hammerjs': 2.0.46
-
   '@electron/asar@3.4.1':
     dependencies:
       commander: 5.1.0
@@ -6551,8 +6540,6 @@ snapshots:
     dependencies:
       '@types/node': 26.5.0
 
-  '@types/hammerjs@2.0.46': {}
-
   '@types/http-cache-semantics@4.2.0': {}
 
   '@types/istanbul-lib-coverage@2.0.6': {}
@@ -6588,6 +6575,10 @@ snapshots:
       '@types/node': 26.5.0
       xmlbuilder: 15.1.1
     optional: true
+
+  '@types/react-test-renderer@19.3.0':
+    dependencies:
+      '@types/react': 19.0.14
 
   '@types/react@19.0.14':
     dependencies:
@@ -8665,10 +8656,6 @@ snapshots:
     dependencies:
       hermes-estree: 0.29.1
 
-  hoist-non-react-statics@3.3.2:
-    dependencies:
-      react-is: 16.13.1
-
   hosted-git-info@4.1.0:
     dependencies:
       lru-cache: 6.0.0
@@ -9369,7 +9356,7 @@ snapshots:
       '@babel/types': 7.29.8
       flow-enums-runtime: 0.0.6
       invariant: 2.2.4
-      metro-symbolicate: 0.82.5
+      metro-symbolicate: 0.82.5(supports-color@10.2.2)
       nullthrows: 1.1.1
       ob1: 0.82.5
       source-map: 0.5.7
@@ -9377,7 +9364,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  metro-symbolicate@0.82.5:
+  metro-symbolicate@0.82.5(supports-color@10.2.2):
     dependencies:
       flow-enums-runtime: 0.0.6
       invariant: 2.2.4
@@ -9385,6 +9372,8 @@ snapshots:
       nullthrows: 1.1.1
       source-map: 0.5.7
       vlq: 1.0.1
+    transitivePeerDependencies:
+      - supports-color
 
   metro-transform-plugins@0.82.5(supports-color@10.2.2):
     dependencies:
@@ -9449,7 +9438,7 @@ snapshots:
       metro-resolver: 0.82.5
       metro-runtime: 0.82.5
       metro-source-map: 0.82.5(supports-color@10.2.2)
-      metro-symbolicate: 0.82.5
+      metro-symbolicate: 0.82.5(supports-color@10.2.2)
       metro-transform-plugins: 0.82.5(supports-color@10.2.2)
       metro-transform-worker: 0.82.5(supports-color@10.2.2)
       mime-types: 2.1.35
@@ -9956,10 +9945,9 @@ snapshots:
       react: 19.2.8
       react-native: 0.79.3(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.0.14)(react@19.2.8)(supports-color@10.2.2)
 
-  react-native-gesture-handler@2.24.0(react-native@0.79.3(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.0.14)(react@19.2.8)(supports-color@10.2.2))(react@19.2.8):
+  react-native-gesture-handler@3.3.0(react-native@0.79.3(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.0.14)(react@19.2.8)(supports-color@10.2.2))(react@19.2.8):
     dependencies:
-      '@egjs/hammerjs': 2.0.17
-      hoist-non-react-statics: 3.3.2
+      '@types/react-test-renderer': 19.3.0
       invariant: 2.2.4
       react: 19.2.8
       react-native: 0.79.3(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.0.14)(react@19.2.8)(supports-color@10.2.2)
